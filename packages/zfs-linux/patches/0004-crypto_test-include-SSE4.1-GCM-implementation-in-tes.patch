@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Mathias Fredriksson <mafredri@gmail.com>
+Date: Sun, 8 Nov 2026 10:51:50 +0000
+Subject: [PATCH 4/7] crypto_test: include SSE4.1 GCM implementation in tests
+
+Signed-off-by: Mathias Fredriksson <mafredri@gmail.com>
+---
+ tests/zfs-tests/cmd/crypto_test.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/tests/zfs-tests/cmd/crypto_test.c b/tests/zfs-tests/cmd/crypto_test.c
+index e08003f80464..b85f011feb8f 100644
+--- a/tests/zfs-tests/cmd/crypto_test.c
++++ b/tests/zfs-tests/cmd/crypto_test.c
+@@ -529,6 +529,8 @@ static const char *aes_gcm_impl[][2] = {
+ 	{ "aesni",   "pclmulqdq" },
+ 	{ "x86_64",  "avx" },
+ 	{ "aesni",   "avx" },
++	{ "x86_64",  "sse4_1" },
++	{ "aesni",   "sse4_1" },
+ };
+ 
+ /* signature of function to call after setting implementation params */

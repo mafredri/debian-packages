@@ -1,0 +1,79 @@
+# Tools and tasks for development and CI (jdx/mise-action). Renovate updates
+# the tool versions in its CI tools group.
+[tools]
+"aqua:gitleaks/gitleaks" = "8.30.1"
+"aqua:google/yamlfmt" = "0.21.0"
+# shfmt
+"aqua:mvdan/sh" = "3.14.1"
+actionlint = "1.7.12"
+node = "26.13.0"
+# @yarnpkg/libzip 3.2.2 was published by hand without the provenance
+# attestation that 3.2.0 and 3.2.1 have, which mise's npm trust policy rejects.
+# Its gitHead matches the upstream @yarnpkg/libzip/3.2.2 tag.
+"npm:renovate" = { version = "44.222.4", trust_policy_excludes = ["@yarnpkg/libzip@3.2.2"] }
+shellcheck = "0.11.0"
+
+[tasks.ci]
+description = "Run every check. CI scans commits with gitleaks-action instead of security/secrets"
+depends = ["fmt/check", "lint", "security/secrets", "renovate/check"]
+
+[tasks.fmt]
+description = "Format YAML and shell scripts"
+depends = ["fmt/yaml", "fmt/sh"]
+
+[tasks."fmt/yaml"]
+run = "yamlfmt ."
+
+[tasks."fmt/sh"]
+run = "git ls-files -co --exclude-standard '*.sh' | xargs -r shfmt -w"
+
+[tasks."fmt/check"]
+description = "Check formatting of YAML and shell scripts"
+depends = ["fmt/check-yaml", "fmt/check-sh"]
+
+[tasks."fmt/check-yaml"]
+run = "yamlfmt -lint ."
+
+[tasks."fmt/check-sh"]
+run = "git ls-files -co --exclude-standard '*.sh' | xargs -r shfmt -d"
+
+[tasks.lint]
+description = "Lint workflows and shell scripts"
+depends = ["lint/actions", "lint/sh"]
+
+[tasks."lint/actions"]
+run = "actionlint"
+
+[tasks."lint/sh"]
+run = "git ls-files -co --exclude-standard '*.sh' | xargs -r shellcheck -x"
+
+[tasks.build]
+description = "Build and test a package in a debian container with Docker"
+usage = '''
+arg "<package>" help="Directory name under packages/"
+arg "<codename>" help="Debian codename, for example trixie"
+'''
+run = '''
+set -eu
+. "packages/$usage_package/package.env"
+debian=$(docker run --rm -v "$PWD/scripts:/scripts:ro" "debian:$usage_codename" \
+	/scripts/debian-version.sh "$SOURCE" "$usage_codename")
+out=tmp/out/$usage_codename/$usage_package
+docker run --rm -v "$PWD:/src" -w /src \
+	-e PACKAGE="$usage_package" -e CODENAME="$usage_codename" \
+	-e VERSION="$debian+$SUFFIX$REVISION" -e OUT="$out" "debian:$usage_codename" \
+	bash -c 'scripts/build.sh "$PACKAGE" "$CODENAME" "$VERSION" "$OUT" &&
+		if [ -x "packages/$PACKAGE/test.sh" ]; then "packages/$PACKAGE/test.sh" "$OUT"; fi'
+'''
+
+[tasks."patches/update"]
+description = "Regenerate a package's patches from its PATCH_REPO branches"
+usage = 'arg "<package>" help="Directory name under packages/"'
+run = 'packages/$usage_package/update-patches.sh'
+
+[tasks."security/secrets"]
+run = "gitleaks dir --redact ."
+
+[tasks."renovate/check"]
+description = "Validate the Renovate config and check that it extracts dependencies"
+run = "renovate --platform=local --dry-run=extract --require-config=required --config-validation-error=true --onboarding=false"

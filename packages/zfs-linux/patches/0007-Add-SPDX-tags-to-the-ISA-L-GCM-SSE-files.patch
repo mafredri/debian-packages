@@ -1,0 +1,123 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Mathias Fredriksson <mafredri@gmail.com>
+Date: Sun, 8 Nov 2026 12:39:39 +0000
+Subject: [PATCH 7/7] Add SPDX tags to the ISA-L GCM SSE files
+
+The ISA-L crypto files carry Intel's BSD-3-Clause license text but no
+SPDX tag, so spdxcheck fails. module/icp allows only Apache-2.0 and
+CDDL-1.0, so list the module copies as BSD-3-Clause overrides.
+
+Signed-off-by: Mathias Fredriksson <mafredri@gmail.com>
+---
+ contrib/icp/gcm-simd/isa-l_crypto-ported/gcm128_sse.S  | 1 +
+ contrib/icp/gcm-simd/isa-l_crypto-ported/gcm256_sse.S  | 1 +
+ contrib/icp/gcm-simd/isa-l_crypto-ported/gcm_defines.S | 1 +
+ contrib/icp/gcm-simd/isa-l_crypto-ported/gcm_sse.S     | 1 +
+ contrib/icp/gcm-simd/isa-l_crypto-ported/reg_sizes.S   | 1 +
+ module/icp/asm-x86_64/modes/isalc_gcm128_sse.S         | 1 +
+ module/icp/asm-x86_64/modes/isalc_gcm192_sse.S         | 1 +
+ module/icp/asm-x86_64/modes/isalc_gcm256_sse.S         | 1 +
+ module/icp/asm-x86_64/modes/isalc_gcm_defines.S        | 1 +
+ module/icp/asm-x86_64/modes/isalc_gcm_sse.S            | 1 +
+ module/icp/asm-x86_64/modes/isalc_reg_sizes.S          | 1 +
+ 11 files changed, 11 insertions(+)
+
+diff --git a/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm128_sse.S b/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm128_sse.S
+index 6b6422291dc2..9edb6543c14c 100644
+--- a/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm128_sse.S
++++ b/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm128_sse.S
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: BSD-3-Clause
+ //#######################################################################
+ //  Copyright(c) 2011-2016 Intel Corporation All rights reserved.
+ //
+diff --git a/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm256_sse.S b/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm256_sse.S
+index 31781f598ced..e2cc5f48e2df 100644
+--- a/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm256_sse.S
++++ b/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm256_sse.S
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: BSD-3-Clause
+ //////////////////////////////////////////////////////////////////////////
+ //  Copyright(c) 2011-2016 Intel Corporation All rights reserved.
+ //
+diff --git a/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm_defines.S b/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm_defines.S
+index 12a74bbe084a..04c53369539d 100644
+--- a/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm_defines.S
++++ b/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm_defines.S
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: BSD-3-Clause
+ ////////////////////////////////////////////////////////////////////////////////
+ //  Copyright(c) 2011-2016 Intel Corporation All rights reserved.
+ //
+diff --git a/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm_sse.S b/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm_sse.S
+index eec65600ddc6..3cd190458b82 100644
+--- a/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm_sse.S
++++ b/contrib/icp/gcm-simd/isa-l_crypto-ported/gcm_sse.S
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: BSD-3-Clause
+ ////////////////////////////////////////////////////////////////////////////////
+ //  Copyright(c) 2011-2017 Intel Corporation All rights reserved.
+ //
+diff --git a/contrib/icp/gcm-simd/isa-l_crypto-ported/reg_sizes.S b/contrib/icp/gcm-simd/isa-l_crypto-ported/reg_sizes.S
+index 0b63dbd2a0ef..f0ceefc1a8ad 100644
+--- a/contrib/icp/gcm-simd/isa-l_crypto-ported/reg_sizes.S
++++ b/contrib/icp/gcm-simd/isa-l_crypto-ported/reg_sizes.S
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: BSD-3-Clause
+ ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ //  Copyright(c) 2011-2019 Intel Corporation All rights reserved.
+ //
+diff --git a/module/icp/asm-x86_64/modes/isalc_gcm128_sse.S b/module/icp/asm-x86_64/modes/isalc_gcm128_sse.S
+index 0d924cf6428f..cf2555552417 100644
+--- a/module/icp/asm-x86_64/modes/isalc_gcm128_sse.S
++++ b/module/icp/asm-x86_64/modes/isalc_gcm128_sse.S
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: BSD-3-Clause
+ //#######################################################################
+ //  Copyright(c) 2011-2016 Intel Corporation All rights reserved.
+ //
+diff --git a/module/icp/asm-x86_64/modes/isalc_gcm192_sse.S b/module/icp/asm-x86_64/modes/isalc_gcm192_sse.S
+index 851837a34dd5..1a39adc266e7 100644
+--- a/module/icp/asm-x86_64/modes/isalc_gcm192_sse.S
++++ b/module/icp/asm-x86_64/modes/isalc_gcm192_sse.S
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: BSD-3-Clause
+ //#######################################################################
+ //  Copyright(c) 2011-2016 Intel Corporation All rights reserved.
+ //
+diff --git a/module/icp/asm-x86_64/modes/isalc_gcm256_sse.S b/module/icp/asm-x86_64/modes/isalc_gcm256_sse.S
+index 75b99f664348..423826faa57c 100644
+--- a/module/icp/asm-x86_64/modes/isalc_gcm256_sse.S
++++ b/module/icp/asm-x86_64/modes/isalc_gcm256_sse.S
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: BSD-3-Clause
+ //////////////////////////////////////////////////////////////////////////
+ //  Copyright(c) 2011-2016 Intel Corporation All rights reserved.
+ //
+diff --git a/module/icp/asm-x86_64/modes/isalc_gcm_defines.S b/module/icp/asm-x86_64/modes/isalc_gcm_defines.S
+index 825f46a52dc6..5c220014abed 100644
+--- a/module/icp/asm-x86_64/modes/isalc_gcm_defines.S
++++ b/module/icp/asm-x86_64/modes/isalc_gcm_defines.S
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: BSD-3-Clause
+ ////////////////////////////////////////////////////////////////////////////////
+ //  Copyright(c) 2011-2016 Intel Corporation All rights reserved.
+ //
+diff --git a/module/icp/asm-x86_64/modes/isalc_gcm_sse.S b/module/icp/asm-x86_64/modes/isalc_gcm_sse.S
+index c53ea0be072f..da8255d14d9c 100644
+--- a/module/icp/asm-x86_64/modes/isalc_gcm_sse.S
++++ b/module/icp/asm-x86_64/modes/isalc_gcm_sse.S
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: BSD-3-Clause
+ ////////////////////////////////////////////////////////////////////////////////
+ //  Copyright(c) 2011-2017 Intel Corporation All rights reserved.
+ //
+diff --git a/module/icp/asm-x86_64/modes/isalc_reg_sizes.S b/module/icp/asm-x86_64/modes/isalc_reg_sizes.S
+index 3475264d2e78..76a57ae40798 100644
+--- a/module/icp/asm-x86_64/modes/isalc_reg_sizes.S
++++ b/module/icp/asm-x86_64/modes/isalc_reg_sizes.S
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: BSD-3-Clause
+ ////////////////////////////////////////////////////////////////////////////////
+ //  Copyright(c) 2011-2019 Intel Corporation All rights reserved.
+ //

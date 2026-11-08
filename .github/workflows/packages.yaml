@@ -1,0 +1,150 @@
+name: Packages
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  # Rebuild when Debian publishes a new version of a source package.
+  schedule:
+    - cron: "23 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      builds: ${{ steps.plan.outputs.builds }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Plan builds
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          builds=$(scripts/plan.sh "$EVENT" "$PR_BASE" HEAD)
+          echo "builds=$builds" | tee -a "$GITHUB_OUTPUT"
+
+  build:
+    needs: plan
+    if: needs.plan.outputs.builds != '[]'
+    runs-on: ubuntu-latest
+    container: debian:${{ matrix.codename }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.builds) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Build
+        env:
+          PACKAGE: ${{ matrix.package }}
+          CODENAME: ${{ matrix.codename }}
+          VERSION: ${{ matrix.version }}
+        run: scripts/build.sh "$PACKAGE" "$CODENAME" "$VERSION" out
+
+      - name: Test
+        env:
+          PACKAGE: ${{ matrix.package }}
+        run: |
+          if [ -x "packages/$PACKAGE/test.sh" ]; then
+            "packages/$PACKAGE/test.sh" out
+          fi
+
+      - name: Upload packages
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ matrix.codename }}-${{ matrix.package }}
+          path: out/
+          if-no-files-found: error
+
+  release:
+    needs: [plan, build]
+    if: github.event_name != 'pull_request' && needs.plan.outputs.builds != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.builds) }}
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ${{ matrix.codename }}-${{ matrix.package }}
+          path: out
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ matrix.tag }}
+          VERSION: ${{ matrix.version }}
+          PACKAGE: ${{ matrix.package }}
+          CODENAME: ${{ matrix.codename }}
+        run: |
+          gh release create "$TAG" out/* --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" --title "$VERSION" \
+            --notes "packages/$PACKAGE for $CODENAME at $GITHUB_SHA."
+
+  publish:
+    needs: [plan, release]
+    # Publish after new releases, and on manual runs to refresh the site.
+    if: >-
+      always() && github.event_name != 'pull_request' && (needs.release.result == 'success' || (needs.release.result == 'skipped' && needs.plan.result == 'success' && github.event_name == 'workflow_dispatch'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install apt-ftparchive
+        run: command -v apt-ftparchive || sudo apt-get install -y --no-install-recommends apt-utils
+
+      - name: Build apt repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          APT_SIGNING_KEY: ${{ secrets.APT_SIGNING_KEY }}
+        run: scripts/publish.sh site
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
+  # Branch rules require this job: the build jobs are named after the builds
+  # that run, and are skipped when there are none.
+  packages:
+    needs: [plan, build]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check plan and build results
+        env:
+          RESULTS: ${{ toJSON(needs.*.result) }}
+        run: jq -e 'all(. == "success" or . == "skipped")' <<<"$RESULTS"

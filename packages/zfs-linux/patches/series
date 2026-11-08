@@ -1,0 +1,7 @@
+0001-initial-bring-over-of-Intel-Intelligent-Storage-Acce.patch
+0002-ICP-AES_GCM-Add-sse4-asm-routines-rebased-to-zfs-2.3.patch
+0003-ICP-AES_GCM-Return-generic-ops-for-sse4_1.patch
+0004-crypto_test-include-SSE4.1-GCM-implementation-in-tes.patch
+0005-ICP-AES_GCM-Mark-isalc-SSE-functions-non-standard.patch
+0006-ICP-AES_GCM-Make-DEBUG_GCM_ASM-opt-in.patch
+0007-Add-SPDX-tags-to-the-ISA-L-GCM-SSE-files.patch

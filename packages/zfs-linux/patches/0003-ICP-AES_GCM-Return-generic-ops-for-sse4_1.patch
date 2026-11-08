@@ -1,0 +1,38 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Mathias Fredriksson <mafredri@gmail.com>
+Date: Sun, 8 Nov 2026 10:51:50 +0000
+Subject: [PATCH 3/7] ICP: AES_GCM: Return generic ops for sse4_1
+
+With icp_gcm_impl=sse4_1, contexts the isalc code can't handle (IV
+length other than 12 bytes, or tag length other than 64, 96 or 128 bits)
+fall back to the generic GCM path. gcm_impl_get_ops() had no case for
+IMPL_SSE4_1, so it returned NULL and the fallback crashed calling
+through it. Handle it like IMPL_AVX.
+
+Signed-off-by: Mathias Fredriksson <mafredri@gmail.com>
+---
+ module/icp/algs/modes/gcm.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/module/icp/algs/modes/gcm.c b/module/icp/algs/modes/gcm.c
+index 712bb9bea50a..7aca9b2b57f1 100644
+--- a/module/icp/algs/modes/gcm.c
++++ b/module/icp/algs/modes/gcm.c
+@@ -1065,11 +1065,15 @@ gcm_impl_get_ops(void)
+ 		ops = gcm_supp_impl[idx];
+ 		break;
+ #ifdef CAN_USE_GCM_ASM
++#ifdef CAN_USE_GCM_ASM_SSE
++	case IMPL_SSE4_1:
++#endif
+ 	case IMPL_AVX:
+ 		/*
+ 		 * Make sure that we return a valid implementation while
+-		 * switching to the avx implementation since there still
+-		 * may be unfinished non-avx contexts around.
++		 * switching to a SIMD implementation since there still
++		 * may be unfinished non-SIMD contexts around. Contexts
++		 * the SIMD code can't handle also use these ops.
+ 		 */
+ 		ops = &gcm_generic_impl;
+ 		break;
