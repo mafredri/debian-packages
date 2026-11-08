@@ -21,7 +21,7 @@ curl -fsSL https://mafredri.github.io/debian-packages/key.asc |
 gpg --show-keys /etc/apt/keyrings/mafredri-debian-packages.asc
 ```
 
-Fingerprint: not created yet.
+Fingerprint: `952FF4118249AAE54FD40BEA8B586D0A7DB66243`
 
 Add the repository, and pin it so its packages replace Debian's packages of
 the same name:
