@@ -12,6 +12,8 @@ package=$1
 codename=$2
 version=$3
 out=$4
+mkdir -p "$out"
+out=$(cd "$out" && pwd)
 root=$(cd "$(dirname "$0")/.." && pwd)
 package_dir=$root/packages/$package
 # shellcheck source=/dev/null
@@ -50,7 +52,6 @@ DEBFULLNAME="Mathias Fredriksson" DEBEMAIL="mafredri@gmail.com" \
 
 DEB_BUILD_OPTIONS="parallel=$(nproc) nocheck" dpkg-buildpackage -b -uc -us
 
-mkdir -p "$out"
 find .. -maxdepth 1 -type f \( -name '*.deb' ! -name '*-dbgsym_*' \
 	-o -name '*.buildinfo' -o -name '*.changes' \) -exec cp -t "$out" {} +
 ls -l "$out"
