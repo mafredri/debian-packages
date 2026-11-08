@@ -1,0 +1,4 @@
+title = "debian-packages gitleaks config"
+
+[extend]
+useDefault = true

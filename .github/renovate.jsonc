@@ -1,0 +1,29 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests"
+  ],
+  // Rebase on every main change so each pull request is tested against the
+  // main it merges into.
+  "rebaseWhen": "behind-base-branch",
+  "timezone": "Europe/Helsinki",
+  "labels": [
+    "dependencies"
+  ],
+  "rangeStrategy": "pin",
+  "packageRules": [
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "groupName": "github actions"
+    },
+    {
+      "matchManagers": [
+        "mise"
+      ],
+      "groupName": "CI tools"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Mathias Fredriksson <mafredri@gmail.com>
+Date: Sun, 8 Nov 2026 12:34:40 +0000
+Subject: [PATCH 6/7] ICP: AES_GCM: Make DEBUG_GCM_ASM opt-in
+
+DEBUG_GCM_ASM was defined in every DEBUG build. It shadows each AVX
+context with an SSE one, and the SSE init asserts on IVs other than 12
+bytes, so crypto_test aborts in --enable-debug builds. ZTS runs it in
+icp_aes_gcm, and CI builds with --enable-debug. Leave the define for
+developers to set.
+
+Signed-off-by: Mathias Fredriksson <mafredri@gmail.com>
+---
+ module/icp/include/modes/modes.h | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/module/icp/include/modes/modes.h b/module/icp/include/modes/modes.h
+index da8f60d69635..c964a5476884 100644
+--- a/module/icp/include/modes/modes.h
++++ b/module/icp/include/modes/modes.h
+@@ -43,10 +43,11 @@ extern "C" {
+ /* XXXX: does AES + PCLMULQDQ really imply at least SSE4_1? */
+ #define	CAN_USE_GCM_ASM
+ 
+-#ifdef DEBUG
+-/* Defines this to the gcm_simd_impl_t to debug. */
+-#define	DEBUG_GCM_ASM	GSI_ISALC_SSE
+-#endif
++/*
++ * Define DEBUG_GCM_ASM to a gcm_simd_impl_t, e.g. GSI_ISALC_SSE, to run that
++ * implementation on a shadow copy of every AVX context and log differences.
++ * It asserts on IVs other than 12 bytes, which crypto_test's vectors use.
++ */
+ #if defined(HAVE_SSE4_1)
+ #define	CAN_USE_GCM_ASM_SSE
+ #endif
